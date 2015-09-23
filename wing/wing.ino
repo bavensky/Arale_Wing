@@ -3,18 +3,22 @@
 
 Servo wingleft; 
 Servo wingright;
+int pos;
 
 void setup()
 {
-  wingleft.attach(3);  // attaches the servo on pin 9 to the servo object
-  wingright.attach(5);
+  wingright.attach(3);  
+  wingleft.attach(5);
 }
 
 void loop() 
-{ 
-  val = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023) 
-  val = map(val, 0, 1023, 0, 180);     // scale it to use it with the servo (value between 0 and 180) 
-  myservo.write(val);                  // sets the servo position according to the scaled value 
-  delay(15);                           // waits for the servo to get there 
+{  
+  wingleft.write(160);  
+  wingright.write(20);
+  delay(300);
+  wingleft.write(60);  
+  wingright.write(120);
+  delay(300);
+  
 } 
 
