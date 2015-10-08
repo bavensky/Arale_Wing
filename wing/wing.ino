@@ -10,8 +10,8 @@ Servo wingright;
 void setup()
 {
   Serial.begin(9600);
-  wingright.attach(3);  
-  wingleft.attach(5);
+  wingright.attach(5);  
+  wingleft.attach(3);
 }
 
 void loop() 
@@ -23,23 +23,23 @@ void loop()
   Serial.println(analogRead(ZOUT));
 
   wingleft.write(90);
-  wingright.write(90);
+  wingright.write(80);
   
-  while(analogRead(YOUT) >= 380) {
+  while(analogRead(YOUT) >= 375) {
     wingleft.write(160);
     delay(300);  
     wingleft.write(60); 
     delay(300); 
   }
 
-  while(analogRead(YOUT) <= 345) {
-    wingright.write(20);
+  while(analogRead(YOUT) <= 335) {
+    wingright.write(50);
     delay(300); 
     wingright.write(120);
     delay(300); 
   }
 
-  while(analogRead(ZOUT) <= 330) {
+  while(analogRead(ZOUT) <= 260) {
     wingleft.write(160);
     wingright.write(20);
     delay(300);  
