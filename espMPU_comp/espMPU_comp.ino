@@ -21,10 +21,16 @@ int16_t gz_diff = -3;
 
 float p_angle, r_angle, rollAcc, pitchAcc, gyroXrate;
 float P_CompCoeff = 0.95;
-unsigned long time_prev;
+
+unsigned long time_prev = 0;
+unsigned long previousMode1 = 0;
+unsigned long previousMode2 = 0;
 
 void readMPU();
 void wing_swing();
+void mode1();
+void mode2();
+void mode3();
 
 void setup() {
   Wire.begin();
@@ -35,20 +41,38 @@ void setup() {
   L_wing.attach(14);
   R_wing.attach(12);
   delay(1000);
-  readMPU();
-
 }
 
 void loop() {
   readMPU();
+  mode1();
+  mode2();
 
-  //  L_wing.write(90); //center
-  //  R_wing.write(90); //center
-
+  // moveing wing
+  //  L_wing.write(90); //wing left center
+  //  R_wing.write(90); //wing right center
   //  L_wing.write(130); //forward
   //  R_wing.write(50); //forward
   //  L_wing.write(50); //backward
   //  R_wing.write(130); //backward
+  //
+  //  while (p_angle <= -20 && p_angle >= -40 ) {
+  //    readMPU();
+  //    L_wing.write(50);
+  //    delay(100);
+  //    L_wing.write(130);
+  //    delay(100);
+  //  }
+
+  //  while (p_angle < -20 || p_angle > -40 ) {
+  //    readMPU();
+  //    L_wing.write(180);
+  //    R_wing.write(50);
+  //    delay(10);
+  //    L_wing.write(50);
+  //    R_wing.write(130);
+  //    delay(200);
+  //  }
 
   //  while (p_angle > 20 && p_angle < 30 ) {
   //    readMPU();
@@ -93,12 +117,12 @@ void readMPU()  {
     //    rawGyrox_Y -= gy_diff;
     //    rawGyrox_Z -= gz_diff;
 
-//    ax -= ax_diff;
-//    ay -= ay_diff;
-//
-//    gx -= gx_diff;
-//    gy -= gy_diff;
-//    gz -= gz_diff;
+    //    ax -= ax_diff;
+    //    ay -= ay_diff;
+    //
+    //    gx -= gx_diff;
+    //    gy -= gy_diff;
+    //    gz -= gz_diff;
 
     //    for(int i=0; i<=100; i++) {
     //      accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
@@ -117,7 +141,7 @@ void readMPU()  {
 
     //    p_angle += (((float)gz / 16.4f)) * (-0.01f);
     //    p_angle += ((gz / 16.4f)) * (-0.01f);
-    
+
     p_angle += ((gz / 16.4f)) * (0.01f);    // gz จุดที่เปลี่ยนตามแกนหมุน
     //(float)22/7; //RAD_TO_DEG แปลงเรเดียนเป็นองศา
     float pitchAcc = atan2(-ay, -ax) * RAD_TO_DEG; // atan2(1, 2)  1 คือจุดหมุน, 2 คือจุดตาม
@@ -129,9 +153,9 @@ void readMPU()  {
 
     //    Serial.printf("Read IMU %d %d %d\n", ax, ay, gz);
 
-    Serial.print(p_angle);
-    Serial.print("\t");
-    Serial.println(r_angle);
+    Serial.println(p_angle);
+    //    Serial.print("\t");
+    //    Serial.println(r_angle);
 
   }
 }
@@ -148,3 +172,41 @@ void wing_Rswing()  {
   R_wing.write(0);
 }
 
+void mode1()  {
+  unsigned long timenow = millis();
+  readMPU();
+
+  if (p_angle <= -10 && p_angle >= -19)  {
+    if (timenow - previousMode1 <= 500) {
+      L_wing.write(90);
+      delay(250);
+      L_wing.write(0);
+      delay(250);
+      L_wing.write(90);
+      delay(250);
+      L_wing.write(0);
+      delay(250);
+    }
+    if (timenow - previousMode1 >= 3000) {
+      previousMode1 = timenow;
+    }
+  } else {
+    previousMode1 = timenow;
+  }
+}
+
+void mode2()  {
+  unsigned long timenow = millis();
+  readMPU();
+  if (p_angle <= -20 && p_angle >= -40)  {
+    if (timenow - previousMode2 >= 500) {
+      L_wing.write(90);
+    }
+    if (timenow - previousMode2 >= 1000) {
+      L_wing.write(0);
+      previousMode2 = timenow;
+    }
+  }  else {
+    previousMode2 = timenow;
+  }
+}
