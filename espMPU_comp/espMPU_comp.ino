@@ -8,7 +8,9 @@ Servo R_wing;
 
 MPU6050 accelgyro;
 #define OUTPUT_READABLE_ACCELGYRO
+#define BT 0
 
+int16_t modeCount = 0;
 int16_t ax, ay, az;
 int16_t gx, gy, gz;
 unsigned long sum_x, sum_y;
@@ -25,6 +27,8 @@ float P_CompCoeff = 0.95;
 unsigned long time_prev = 0;
 unsigned long previousMode1 = 0;
 unsigned long previousMode2 = 0;
+unsigned long previousMode3 = 0;
+
 
 void readMPU();
 void wing_swing();
@@ -37,7 +41,7 @@ void setup() {
   Serial.begin(115200);
 
   accelgyro.initialize();
-
+  pinMode(BT, INPUT);
   L_wing.attach(14);
   R_wing.attach(12);
   delay(1000);
@@ -45,9 +49,18 @@ void setup() {
 
 void loop() {
   readMPU();
-  mode1();
-  mode2();
+  
+  if(digitalRead(BT) == 0 )  {
+    delay(200);
+    modeCount++;
+  }
 
+  if(modeCount == 1)  mode1();
+  if(modeCount == 2)  mode2();
+  if(modeCount == 3)  mode3();
+  if(modeCount == 4)  modeCount = 0;
+  
+  
   // moveing wing
   //  L_wing.write(90); //wing left center
   //  R_wing.write(90); //wing right center
@@ -176,7 +189,7 @@ void mode1()  {
   unsigned long timenow = millis();
   readMPU();
 
-  if (p_angle <= -10 && p_angle >= -19)  {
+  if (p_angle <= -10 && p_angle >= -20)  {
     if (timenow - previousMode1 <= 500) {
       L_wing.write(90);
       delay(250);
@@ -198,7 +211,7 @@ void mode1()  {
 void mode2()  {
   unsigned long timenow = millis();
   readMPU();
-  if (p_angle <= -20 && p_angle >= -40)  {
+  if (p_angle <= -21 && p_angle >= -30)  {
     if (timenow - previousMode2 >= 500) {
       L_wing.write(90);
     }
@@ -208,5 +221,21 @@ void mode2()  {
     }
   }  else {
     previousMode2 = timenow;
+  }
+}
+
+void mode3()  {
+  unsigned long timenow = millis();
+  readMPU();
+  if (p_angle <= -31 && p_angle >= -40)  {
+    if (timenow - previousMode3 >= 500) {
+      L_wing.write(90);
+    }
+    if (timenow - previousMode3 >= 1000) {
+      L_wing.write(0);
+      previousMode3 = timenow;
+    }
+  }  else {
+    previousMode3 = timenow;
   }
 }
