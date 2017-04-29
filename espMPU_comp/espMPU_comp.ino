@@ -57,9 +57,12 @@ void loop() {
   //  R_wing.write(110); //backward
 
   readMPU();
-  L_wing.write(90);
-  R_wing.write(90);
-  mode3();
+  if (p_angle < 10 && r_angle < 10 && r_angle > -10) {
+    L_wing.write(90);
+    R_wing.write(90);
+  }
+
+  mode2();
 
   //  if(modeCount == 1)  mode1();
   //  if(modeCount == 2)  mode2();
@@ -156,9 +159,9 @@ void readMPU()  {
 
     //    Serial.printf("Read IMU %d %d %d\n", ax, ay, gz);
 
-    Serial.println(p_angle);
-    //Serial.print("\t");
-    //    Serial.println(r_angle);
+    Serial.print(p_angle);
+    Serial.print("\t");
+        Serial.println(r_angle);
 
   }
 }
@@ -185,32 +188,40 @@ void mode1()  {
 void mode2()  {
   unsigned long timenow = millis();
   readMPU();
-
+  
   if (p_angle >= 10 && p_angle <= 30 ) {
-    R_wing.write(70);
-    L_wing.write(110);
+    R_wing.write(50);
+    L_wing.write(130);
     if (timenow - previousMode2 >= 500) {
       R_wing.write(90);
       L_wing.write(90);
       delay(200);
       previousMode2 = timenow;
     }
+  } else {
+    previousMode2 = timenow;
   }
+  if (r_angle <= -10 ) {
+    R_wing.write(50);
+  } 
+  if (r_angle >= 10 ) {
+    L_wing.write(130);
+  } 
 }
 
 void mode3()  {
   readMPU();
 
   if (p_angle >= 10 && p_angle <= 30)  {
-    
-    if(L_angle <= 130 && R_angle >= 50)  {
-      L_angle++; R_angle--;  
+
+    if (L_angle <= 130 && R_angle >= 50)  {
+      L_angle++; R_angle--;
     }
-    
+
     if (L_angle >= 130 && R_angle <= 50)  {
       R_angle++;  L_angle--;
     }
-    
+
     R_wing.write(R_angle);  L_wing.write(L_angle);
     delay(100);
   } else {
